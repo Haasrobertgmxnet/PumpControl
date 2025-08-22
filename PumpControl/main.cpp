@@ -111,6 +111,8 @@ int main()
 	uint16_t val_2 = 100;
 	
 	AdcCalibMaintainer<uint16_t> adcCalibMaintainer(adc_1, val_1, adc_2, val_2);
+	adcCalibMaintainer.SaveToEEPROM(0);
+	adcCalibMaintainer.LoadFromEEPROM(0);
 	auto adcCalib = adcCalibMaintainer.Create(1023);
 	
 	uint16_t up_bound = adcCalib.physToAdc(0);
@@ -132,15 +134,18 @@ int main()
         uint16_t adc_raw = adc_read_avg(ADC_SAMPLES);
         adc_off();
 
+		adcCalibMaintainer.LoadFromEEPROM(0);
+		adcCalibMaintainer.ApplyCalibration(adcCalib);
+		
 		if(adc_raw > up_bound){
 			adcCalibMaintainer.ReCalibrateLower(adc_raw, val_1);
-			adcCalibMaintainer.ApplyCalibration(adcCalib);
+			adcCalibMaintainer.SaveToEEPROM(0);
 			continue;
 		}
 		
 		if(adc_raw< lo_bound){
-			adcCalibMaintainer.ReCalibrateUpper(adc_raw, val_2);
-			adcCalibMaintainer.ApplyCalibration(adcCalib);
+			adcCalibMaintainer.ReCalibrateLower(adc_raw, val_1);
+			adcCalibMaintainer.SaveToEEPROM(0);
 			continue;
 		}
 		

@@ -7,7 +7,8 @@
 
 #pragma once
 
-# include "adc_calib.h"
+#include <avr/eeprom.h>
+#include "adc_calib.h"
 	
 template<typename T>
 class AdcCalibMaintainer {
@@ -22,8 +23,25 @@ class AdcCalibMaintainer {
 		offset_ = val_1_ - slope_*adc_1_;
 	}
 	
+	/// Write slope and offset to EEPROM
+	void SaveToEEPROM(uint16_t addr) const {
+		eeprom_update_block((const void*)&slope_, (void*)addr, sizeof(T));
+		eeprom_update_block((const void*)&offset_, (void*)(addr + sizeof(T)), sizeof(T));
+	}
+
+	/// Load slope and offset from EEPROM
+	void LoadFromEEPROM(uint16_t addr) {
+		eeprom_read_block((void*)&slope_, (const void*)addr, sizeof(T));
+		eeprom_read_block((void*)&offset_, (const void*)(addr + sizeof(T)), sizeof(T));
+	}
+	
 	AdcCalib<T> Create(uint16_t adc_max= 1023){
 		return AdcCalib<T>(adc_max, slope_, offset_);
+	}
+	
+	void ApplyCalibration(AdcCalib<T>& adcCalib){
+		adcCalib.setSlope(slope_);
+		adcCalib.setOffset(offset_);
 	}
 	
 	void ReCalculateStraightLine(){
@@ -32,11 +50,6 @@ class AdcCalibMaintainer {
 		offset_ = val_2_ - slope_*adc_2_;
 	}
 
-	void ApplyCalibration(AdcCalib<T>& adcCalib){
-		adcCalib.setSlope(slope_);
-		adcCalib.setOffset(offset_);
-	}
-	
 	void ReCalibrateLower(uint16_t adc_1, T val_1){
 		adc_1_ = adc_1;
 		val_1_ = val_1;
