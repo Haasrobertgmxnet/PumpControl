@@ -126,18 +126,6 @@ Das System verfügt über ein ausgeklügeltes Kalibrierungs-Framework:
 - **Aktive Messung**: ~1-2mA für kurze Perioden
 - **Pumpensteuerung**: Abhängig von externer Pumpenschaltung
 
-#### Mitwirkung
-
-1. Repository forken
-2. Feature-Branch erstellen (`git checkout -b feature/neue-funktion`)
-3. Bestehenden Code-Stil befolgen (C++17, Template-basiert)
-4. Auf echter ATtiny25-Hardware testen
-5. Pull Request einreichen
-
-#### Lizenz
-
-Dieses Projekt ist unter der MIT-Lizenz lizenziert.
-
 ---
 
 ## Español
