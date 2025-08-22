@@ -23,6 +23,7 @@ Ein Ultra-Low-Power Mikrocontroller-System für die automatisierte Steuerung von
 - **Minimale Hardware**: Läuft auf ATtiny25 (8-Pin-Mikrocontroller)
 - **Energieeffizient**: ~200µA Einsparung durch ADC-Energieverwaltung
 - **Template-basiertes Design**: Modernes C++17 mit Template-Spezialisierung für verschiedene Datentypen
+- **Verwendung des EEPROM**: Parameter der Kalibrierung werden im EEPROM gespeichert
 
 #### Hardware-Anforderungen
 
@@ -126,18 +127,6 @@ Das System verfügt über ein ausgeklügeltes Kalibrierungs-Framework:
 - **Aktive Messung**: ~1-2mA für kurze Perioden
 - **Pumpensteuerung**: Abhängig von externer Pumpenschaltung
 
-#### Mitwirkung
-
-1. Repository forken
-2. Feature-Branch erstellen (`git checkout -b feature/neue-funktion`)
-3. Bestehenden Code-Stil befolgen (C++17, Template-basiert)
-4. Auf echter ATtiny25-Hardware testen
-5. Pull Request einreichen
-
-#### Lizenz
-
-Dieses Projekt ist unter der MIT-Lizenz lizenziert.
-
 ---
 
 ## Español
@@ -155,6 +144,7 @@ Un sistema de microcontrolador de ultra bajo consumo para control automatizado d
 - **Hardware Mínimo**: Funciona en ATtiny25 (microcontrolador de 8 pines)
 - **Eficiente en Energía**: ~200µA de ahorro mediante gestión de energía del ADC
 - **Diseño Basado en Plantillas**: C++17 moderno con especialización de plantillas para diferentes tipos de datos
+- **Uso de EEPROM**: Parametros de calibración serán guardados en el almacén EEPROM
 
 #### Requisitos de Hardware
 
@@ -384,9 +374,9 @@ The system features a sophisticated calibration framework:
 
 ---
 
-### Technical Implementation Details / Detalles Técnicos / Technische Implementierungsdetails
+### Technische Implementierungsdetails / Detalles Técnicos / Technical Implementation Details
 
-#### Class Structure / Estructura de Clases / Klassenstruktur
+#### Klassenstruktur / Estructura de Clases / Class Structure 
 
 ```cpp
 // ADC Calibration Template System
@@ -409,34 +399,34 @@ class AdcCalibMaintainer {
 };
 ```
 
-#### Memory Usage / Uso de Memoria / Speicherverbrauch
+#### Speicherverbrauch / Uso de Memoria / Memory Usage
 
-- **Flash**: ~2-3KB (depending on optimization)
+- **Flash**: ~2-3KB (depende del optimisación)
 - **RAM**: ~50-100 bytes
-- **EEPROM**: Not used (can be extended for persistent calibration)
+- **EEPROM**: Usado por los dos parametros (slope y offset) de calibración
 
-#### Timing Characteristics / Características de Tiempo / Timing-Eigenschaften
+#### Timing-Eigenschaften / Características de Tiempo / Timing Characteristics
 
-- **Measurement Cycle**: 60 seconds (configurable)
-- **ADC Conversion**: ~100µs per sample
+- **Measurement Cycle**: 60 segundos (configurable)
+- **ADC Conversion**: ~100µs por sample
 - **Sleep Current**: < 10µA
-- **Wake-up Time**: < 1ms from power-down
+- **Wake-up Time**: < 1ms de power-down
 
-#### Build Configuration / Configuración de Compilación / Build-Konfiguration
+#### Build-Konfiguration / Configuración de Compilación / Build Configuration
 
 ```makefile
-# Compiler Flags
+# Ajustes de compilador
 -mmcu=attiny25
 -std=c++17
--Os (size optimization)
--Wall (all warnings)
+-Os (optimisación de tamaño)
+-Wall (todas las advertenciass)
 
 # Fuse Settings (recommended)
 Low:  0x62 (1MHz internal RC, CKDIV8)
-High: 0xDF (default)
+High: 0xDF (predeterminado)
 ```
 
-### Quick Start Example / Ejemplo de Inicio Rápido / Schnellstart-Beispiel
+### Schnellstart-Beispiel / Ejemplo de Inicio Rápido / Quick Start Example
 
 ```cpp
 #include "adc.h"
