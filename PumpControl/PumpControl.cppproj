@@ -176,6 +176,9 @@
     <Compile Include="adc_calib.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="add_calib_maintainer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>

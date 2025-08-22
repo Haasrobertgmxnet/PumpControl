@@ -6,8 +6,6 @@
  */ 
 
 #pragma once
-//#ifndef ADC_H_
-//#define ADC_H_
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -68,4 +66,3 @@ void adc_on()
 	PRR &= ~(1 << PRADC);
 	adc_init();
 }
-//#endif /* ADC_H_ */

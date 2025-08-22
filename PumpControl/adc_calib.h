@@ -6,8 +6,6 @@
  */ 
 
 #pragma once
-//#ifndef ADC_CALIB_H_
-//#define ADC_CALIB_H_
 
 //#include <stdint.h>
 //#include <math.h>
@@ -66,42 +64,61 @@ class AdcCalib<uint16_t> {
 		return static_cast<uint16_t>(adc);
 	}
 
+	void setSlope(uint16_t slope){
+		slope_ = slope;
+	}
+	
+	void setOffset(const uint16_t offset){
+		offset_ = offset;
+	}
+	
 	private:
 	uint16_t adc_max_;
 	int16_t slope_;
 	int16_t offset_;
 };
 
-template<typename T>
-class AdcCalibMaintainer {
-	public:
-	AdcCalibMaintainer(uint16_t adc_1, T val_1, uint16_t adc_2, T val_2)
-	: adc_1_(adc_1), val_1_(val_1), adc_2_(adc_2), val_2_(val_2) {
-		slope_ =(val_2_ - val_1_)/(adc_2_-adc_1_);
-		offset_ = val_1_ - slope_*adc_1_;
-	}
-	
-	AdcCalib<T> Create(uint16_t adc_max= 1023){
-		return AdcCalib<T>(adc_max, slope_, offset_);
-	}
+//template<typename T>
+//class AdcCalibMaintainer {
+	//public:
+	//AdcCalibMaintainer(uint16_t adc_1, T val_1, uint16_t adc_2, T val_2)
+	//: adc_1_(adc_1), val_1_(val_1), adc_2_(adc_2), val_2_(val_2) {
+		//slope_ =(val_2_ - val_1_)/(adc_2_-adc_1_);
+		//offset_ = val_1_ - slope_*adc_1_;
+	//}
+	//
+	//AdcCalib<T> Create(uint16_t adc_max= 1023){
+		//return AdcCalib<T>(adc_max, slope_, offset_);
+	//}
+	//
+	//void ReCalculateStrightLine(){
+		//slope_ = (val_2_ - val_1_)/(adc_2_ - adc_1_);
+		//offset_ = val_2_ - slope_*adc_2_;
+	//}
+//
+	//void ApplyCalibration(AdcCalib<T>& adcCalib){
+		//adcCalib.setSlope(slope_);
+		//adcCalib.setOffset(offset_);
+	//}
+	//
+	//void ReCalibrateLower(uint16_t adc_1, T val_1){
+		//adc_1_ = adc_1;
+		//val_1_ = val_1;
+		//ReCalculateStrightLine();
+	//}
+//
+	//void ReCalibrateUpper(uint16_t adc_2, T val_2){
+		//adc_2_ = adc_2;
+		//val_2_ = val_2;
+		//ReCalculateStrightLine();
+	//}
+	//
+	//private:
+	//uint16_t adc_1_;
+	//T val_1_;
+	//uint16_t adc_2_;
+	//T val_2_;
+	//T slope_;
+	//T offset_;
+//};
 
-	void ReCalibrateLower(AdcCalib<T>& adc_calib, uint16_t adc_1, T val_1){
-		slope_ =(val_2_ - val_1)/(adc_2_- adc_1);
-		offset_ = val_2_ - slope_*adc_2_;
-	}
-	
-	void ReCalibrateUpper(AdcCalib<T>& adc_calib, uint16_t adc_2, T val_2){
-		slope_ =(val_2 - val_1_)/(adc_2 -adc_1_);
-		offset_ = val_1_ - slope_*adc_1_;
-	}
-	
-	private:
-	uint16_t adc_1_;
-	uint16_t adc_2_;
-	T val_1_;
-	T val_2_;
-	T slope_;
-	T offset_;
-};
-
-//#endif /* ADC_CALIB_H_ */
