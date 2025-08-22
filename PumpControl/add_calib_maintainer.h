@@ -10,6 +10,9 @@
 #include <avr/eeprom.h>
 #include "adc_calib.h"
 	
+#undef ENSURE_RVO // in case of C++17 this hopefully not needed, otherwise
+// #define ENSURE_RVO
+
 template<typename T>
 class AdcCalibMaintainer {
 	public:
@@ -35,9 +38,23 @@ class AdcCalibMaintainer {
 		eeprom_read_block((void*)&offset_, (const void*)(addr + sizeof(T)), sizeof(T));
 	}
 	
+#ifdef ENSURE_RVO
+	// If you are not sure, if RVO is applied you may
+	// define an ENSURE_RVO macro by #define ASSURE_RVO
+	// to make sure that a initializer list is returned 
+	// to construct the returned AdcCalib object
+	// !!! This compiling path produces a warning -Wnarrowing
+	AdcCalib<T> Create(uint16_t adc_max = 1023) {
+		return { adc_max, slope_, offset_ };
+	}
+#else
+	// If the ENSURE_RVO macro is not defined
+	// In case of C++17 standard (std=c++17) 
+	// RVO is mandatory, thus ENSURE_RVO is obsolete
 	AdcCalib<T> Create(uint16_t adc_max= 1023){
 		return AdcCalib<T>(adc_max, slope_, offset_);
 	}
+#endif
 	
 	void ApplyCalibration(AdcCalib<T>& adcCalib){
 		adcCalib.setSlope(slope_);
