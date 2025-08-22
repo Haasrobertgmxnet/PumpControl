@@ -209,6 +209,25 @@ Distribución ATtiny25:
    uint16_t val_2 = 100;  // Valor húmedo (100%)
    ```
 
+#### Parámetros de configuración
+
+Edite estas constantes en `main.cpp` para ajustar el comportamiento:
+
+```cpp
+// Messintervall (60 Sekunden Standard)
+constexpr uint16_t MEASUREMENT_PERIOD_S = 60;
+
+// Hysterese-Schwellenwerte (in Prozent)
+constexpr uint16_t THRESHOLD_DRY = 45;  // Pumpe EIN
+constexpr uint16_t THRESHOLD_WET = 55;  // Pumpe AUS
+
+// Sicherheits-Timeout (60 Sekunden maximale Laufzeit)
+constexpr uint16_t PUMP_MAX_ON_S = 60;
+
+// ADC-Mittelung (8 Samples)
+constexpr uint8_t ADC_SAMPLES = 8;
+```
+
 #### Sistema de Calibración ADC
 
 El sistema cuenta con un marco de calibración sofisticado:
@@ -218,13 +237,26 @@ El sistema cuenta con un marco de calibración sofisticado:
 - **Soporte Float/Entero**: Especializaciones de plantilla para diferentes necesidades de precisión
 - **Auto-Calibración**: Ajuste automático cuando las lecturas del sensor exceden límites
 
-#### Contribuciones
+#### Modos de operación
 
-1. Hacer fork del repositorio
-2. Crear rama de característica (`git checkout -b feature/nueva-caracteristica`)
-3. Seguir el estilo de código existente (C++17, basado en plantillas)
-4. Probar en hardware ATtiny25 real
-5. Enviar Pull Request
+1. **Modo de suspensión**: apagado con interrupción WDT cada 8 segundos
+2. **Medición**: activación cada 60 segundos, lectura del sensor, vuelta al modo de suspensión
+3. **Bomba activa**: supervisión continua durante el funcionamiento de la bomba
+4. **Calibración**: ajuste automático del rango del sensor
+
+#### Funciones de seguridad
+
+- **Tiempo máximo de funcionamiento**: la bomba se apaga automáticamente después de 60 segundos
+- **Control de histéresis**: evita el encendido y apagado rápidos
+- **Gestión de energía**: el ADC se desactiva cuando no es necesario (ahorro de ~200 µA)
+- **Protección Watchdog**: capacidad de reinicio del sistema
+- **Detección de caídas de tensión**: configurable mediante fusibles
+
+#### Consumo de energía
+
+- **Modo de reposo**: < 10 µA (con ADC desactivado, BOD desactivado)
+- **Medición activa**: ~1-2 mA durante períodos cortos
+- **Control de la bomba**: Depende del circuito externo de la bomba
 
 ---
 
@@ -349,18 +381,6 @@ The system features a sophisticated calibration framework:
 - **Sleep Mode**: < 10µA (with ADC off, BOD disabled)
 - **Active Measurement**: ~1-2mA for brief periods
 - **Pump Control**: Depends on external pump circuitry
-
-#### Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Follow the existing code style (C++17, template-based)
-4. Test on actual ATtiny25 hardware
-5. Submit a Pull Request
-
-#### License
-
-This project is licensed under the MIT License.
 
 ---
 
