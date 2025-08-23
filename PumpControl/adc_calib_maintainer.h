@@ -1,5 +1,5 @@
 /*
- * add_calib_maintainer.h
+ * adc_calib_maintainer.h
  *
  * Created: 22.08.2025 15:27:32
  *  Author: haasr

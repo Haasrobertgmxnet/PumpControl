@@ -17,7 +17,7 @@
 
 #include "adc.h"
 #include "adc_calib.h"
-#include "add_calib_maintainer.h"
+#include "adc_calib_maintainer.h"
 
 // --------------------------- Use of pins ---------------------------
 constexpr uint8_t PIN_PUMP   = PB1; // phys. Pin 6
@@ -75,10 +75,17 @@ void sleep_powerdown()
     sleep_disable();
 }
 
+constexpr uint8_t PIN_LED = PB0;
+
+static inline void led_on()    { PORTB |=  (1 << PIN_LED); }
+static inline void led_off()   { PORTB &= ~(1 << PIN_LED); }
+static inline void led_toggle(){ PINB  =   (1 << PIN_LED); } // schneller Toggle-Trick
+
 // WDT-ISR: count the 8s ticks
 ISR(WDT_vect)
 {
-    wdt_ticks++;
+	wdt_ticks++;
+	led_toggle();  // Sichtbarer Takt: einmal pro Aufwachen
 }
 
 // --------------------------- Hauptlogik -----------------------------
@@ -89,6 +96,9 @@ int main()
     DDRB  |=  (1 << PIN_PUMP);
     pump_off();
 
+	DDRB |= (1 << PIN_LED);  // LED-Pin als Ausgang
+	led_off();
+	
     // Unbenötigte Peripherie sparen
     PRR |= (1 << PRUSI);   // USI aus
     PRR |= (1 << PRTIM0);  // Timer0 aus (wir nutzen WDT)
@@ -126,10 +136,12 @@ int main()
         // --- Sleep until next measurement ---
         wdt_ticks = 0;
         while (wdt_ticks < ticks_per_measure) {
+			led_off(); 
             sleep_powerdown();   // wacht alle 8s kurz via ISR auf
         }
 
         // --- Measurement ---
+		led_on();    
         adc_on();
         uint16_t adc_raw = adc_read_avg(ADC_SAMPLES);
         adc_off();
@@ -137,15 +149,24 @@ int main()
 		adcCalibMaintainer.LoadFromEEPROM(0);
 		adcCalibMaintainer.ApplyCalibration(adcCalib);
 		
+		auto blink_calib = [](){
+			led_on();  _delay_ms(40);
+			led_off(); _delay_ms(40);
+			led_on();  _delay_ms(40);
+			led_off();
+		};
+		
 		if(adc_raw > up_bound){
 			adcCalibMaintainer.ReCalibrateLower(adc_raw, val_1);
 			adcCalibMaintainer.SaveToEEPROM(0);
+			blink_calib();
 			continue;
 		}
 		
 		if(adc_raw< lo_bound){
 			adcCalibMaintainer.ReCalibrateLower(adc_raw, val_1);
 			adcCalibMaintainer.SaveToEEPROM(0);
+			blink_calib();
 			continue;
 		}
 		
@@ -178,6 +199,8 @@ int main()
         else if (pump_is_on() && (adc_raw < threshold_off)) {
             pump_off();
         }
+		
+		led_off();  // fertig; zurück in Sleep
 
         // Danach geht’s automatisch in die nächste Mess-Schleife (Sleep)
     }
